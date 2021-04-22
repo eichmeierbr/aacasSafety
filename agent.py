@@ -1,7 +1,6 @@
 import numpy as np
 
 
-
 class base_agent:
     def __init__(self, state = np.zeros(4), goal = np.array([10,10]), vmax=3, kp=[1,1], safe_rad=2):
         self._state = np.array(state)
@@ -56,10 +55,18 @@ class pursuer_agent(base_agent):
         # self._state[3] = self._vmax
         self._agent_type = "pursuer"
 
+    def get_goal(self, evader_state):
+        dist = np.linalg.norm(evader_state[:2] - self._state[:2])
+        d_vel = self._state[3] + evader_state[3]
+        lead = min(dist, d_vel * (1.0 - np.exp(-dist)))
+        gx = evader_state[0] + lead*np.cos(evader_state[2])
+        gy = evader_state[1] + lead*np.sin(evader_state[2])
+        return np.array([gx, gy])
         
     def act(self, dt, evader):
 
-        self._goal = evader._state[:2]
+        self._goal = self.get_goal(np.copy(evader._state))
+        # self._goal = evader._state[:2]
         command = self.getAction()
         self.kinematics(command, dt)
 

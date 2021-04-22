@@ -10,7 +10,7 @@ class aacas_agent(base_agent):
 
         self.pos = self._state[:2]
 
-        self.velocity_avoid_mod = 1.75
+        self.velocity_avoid_mod = .5
         self.min_safe_dist = safe_rad
         self.safe_dist = safe_rad
         self.time = 0
@@ -20,8 +20,9 @@ class aacas_agent(base_agent):
 
         self.orbit_changes = {}
         self.orbit_dict = {}
-        self.change_orbit_wait_ = .0
+        self.change_orbit_wait_ = .1
         self.k_conv = 0.01
+        self.ignore_behind_mod = -1.5
 
         
     def act(self, dt, args=[]):
@@ -111,7 +112,7 @@ class aacas_agent(base_agent):
 
             pos = np.array([obs_pos[0], obs_pos[1], 1])
             obst_trans = np.matmul(T_vo, pos)
-            if obst_trans[1] > -0.5 and obst.distance < self.safe_dist:
+            if obst_trans[1] > self.ignore_behind_mod and obst.distance < self.safe_dist:
                 closeObjects.append(obst)
                 move = True
         return closeObjects, move
@@ -199,7 +200,7 @@ class aacas_agent(base_agent):
     def getSafeDistance(self, obstacle):
         vel_sum = self._state[3] + np.linalg.norm(obstacle.velocity)
         self.safe_dist = max(self.min_safe_dist, vel_sum)
-        self.k_conv = 0.0001 + np.exp(-obstacle.distance)
+        self.k_conv = 0.0001 + 2*np.exp(-obstacle.distance)
         # self.safe_dist = self.min_safe_dist
 
 

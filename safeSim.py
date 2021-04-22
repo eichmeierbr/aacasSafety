@@ -29,6 +29,7 @@ def plotStuff(evader, pursuer):
         plt.gca().add_patch(circle)
 
     plt.scatter(evader._goal[0], evader._goal[1])
+    plt.scatter(pursuer._goal[0], pursuer._goal[1])
 
     plt.scatter(pursuer._state[0], pursuer._state[1])
 
@@ -72,7 +73,8 @@ def plotStateSpace(state_space, p_x_r, p_y_r, p_th_r, disc, num_ticks=5, goal=[2
 
 def plotVelocitySpace(state_space, ev, pv, disc, num_ticks=5, goal=[20,0]):
     fig, ax = plt.subplots(1,1)
-    plt.imshow(1-state_space, cmap='Greys')
+    # plt.imshow(1-state_space)
+    ax.imshow(1-state_space, cmap='Greys')
 
     # Set X Axes
     places = np.linspace(0,disc, num_ticks+2)
@@ -85,6 +87,9 @@ def plotVelocitySpace(state_space, ev, pv, disc, num_ticks=5, goal=[20,0]):
     y_ticks = np.round(np.linspace(pv[0], pv[1], num_ticks+2),1)
     ax.set_yticks(places)
     ax.set_yticklabels(y_ticks)
+
+    plt.xlabel('Evader Velocity')
+    plt.ylabel('Pursuer Velocity')
 
     # ax.set_xticks(places)
     plt.show()
@@ -103,7 +108,7 @@ def checkEndConditions(evader, puruser, time=0, printer=False):
     elif time > 20:
         if printer:
             print('Time Exceeded')
-        return 1
+        return 2
     return 0
 
 
@@ -137,7 +142,7 @@ def sim_velocity_space():
 
     goal = [20, 0]
 
-    disc = 50
+    disc = 30
     vs = np.linspace(vels[0], vels[1], num=disc)
 
     state_space = np.zeros([disc, disc])
@@ -171,8 +176,8 @@ def sim_state_space():
     p_y_r = [-10, 10]
     p_th_r = [-np.pi, np.pi]
     vel_max = 3
-    evader_vel = 6
-    pursuer_vel= 6
+    evader_vel = 2
+    pursuer_vel= 2
 
     goal = [20, 0]
     evader_start = [0.0, 0.0, 0.0,evader_vel]
@@ -216,10 +221,11 @@ def easy_run():
 
     goal = [20, 0]
     vel_max = 5
-    evader_vel = 1
-    pursuer_vel= 1
+    evader_vel = 5
+    pursuer_vel= 7
     evader_start = [0.0, 0.0, 0.0, evader_vel]
-    pursuer_start= [20.0,0.0, np.pi, pursuer_vel]
+    pursuer_start= [20, 0.0, np.pi, pursuer_vel]
+    # pursuer_start[2] = np.arctan2(pursuer_start[1],pursuer_start[0])
 
     aacas = aacas_agent(state=evader_start, goal=goal, vmax=evader_vel)
     # pursuer = aacas_agent(state=pursuer_start, goal=[0,0], vmax=pursuer_vel)
@@ -230,6 +236,6 @@ def easy_run():
     run_game(aacas, pursuer, printer=True)
 
 
-# easy_run()
+easy_run()
 # sim_state_space()
-sim_velocity_space()
+# sim_velocity_space()
