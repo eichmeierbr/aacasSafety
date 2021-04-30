@@ -10,7 +10,7 @@ class aacas_agent(base_agent):
 
         self.pos = self._state[:2]
 
-        self.velocity_avoid_mod = .5
+        self.velocity_avoid_mod = 1.75
         self.min_safe_dist = safe_rad
         self.safe_dist = safe_rad
         self.time = 0
@@ -199,15 +199,10 @@ class aacas_agent(base_agent):
 
     def getSafeDistance(self, obstacle):
         vel_sum = self._state[3] + np.linalg.norm(obstacle.velocity)
-        self.safe_dist = max(self.min_safe_dist, vel_sum)
-        self.k_conv = 0.0001 + 2*np.exp(-obstacle.distance)
+        # self.safe_dist = max(self.min_safe_dist, vel_sum)
+        # self.k_conv = 0.0001 + 2*np.exp(-obstacle.distance)
         # self.safe_dist = self.min_safe_dist
 
-
-def moving_average(a, n=3) :
-    ret = np.cumsum(a, dtype=float)
-    ret[n:] = ret[n:] - ret[:-n]
-    return ret[n - 1:] / n
 
 
 class Objects:

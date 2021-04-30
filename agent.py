@@ -17,7 +17,8 @@ class base_agent:
         self._state[0] += self._state[3] * np.cos(self._state[2])*dt
         self._state[1] += self._state[3] * np.sin(self._state[2])*dt
         self._state[2] += u[0] * dt
-        self._state[3] += u[1] * dt
+        # self._state[3] += u[1] * dt
+        self._state[3] = self._vmax
 
         self._state[2] = self.wrap2pi(self._state[2])
         
@@ -51,14 +52,18 @@ class base_agent:
 
 class pursuer_agent(base_agent):
     def __init__(self, state = np.zeros(4), goal = np.array([10,10]), vmax=3, kp=[1,1], safe_rad=2):
-        super().__init__(state, goal, vmax, kp, safe_rad)
+        super().__init__(state, goal[:2], vmax, kp, safe_rad)
         # self._state[3] = self._vmax
+        self._goal = self.get_goal(np.array(goal))
+        diff = self._goal - self._state[:2]
+        self._state[2] = np.arctan2(diff[1],diff[0])
         self._agent_type = "pursuer"
 
     def get_goal(self, evader_state):
         dist = np.linalg.norm(evader_state[:2] - self._state[:2])
-        d_vel = self._state[3] + evader_state[3]
-        lead = min(dist, d_vel * (1.0 - np.exp(-dist)))
+        # lead = min(dist, dist * (1.0 - np.exp(-dist/30)))
+        lead = dist * 0.5
+        # lead = min(dist, 5*dist/d_vel)
         gx = evader_state[0] + lead*np.cos(evader_state[2])
         gy = evader_state[1] + lead*np.sin(evader_state[2])
         return np.array([gx, gy])
