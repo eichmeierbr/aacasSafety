@@ -10,6 +10,7 @@ class base_agent:
         self._state[3] = self._vmax
         self._safe_radius = safe_rad
         self._agent_type = 'base'
+        self.max_command = np.array([2,2])
 
 
 
@@ -25,6 +26,8 @@ class base_agent:
     def act(self, dt, args=None):
 
         command = self.getAction()
+        command[0] = max(-self.max_command[0], min(self.max_command[0], command[0]))
+        command[1] = max(-self.max_command[1], min(self.max_command[1], command[1]))
         self.kinematics(command, dt)
 
 
@@ -55,18 +58,19 @@ class pursuer_agent(base_agent):
         super().__init__(state, goal[:2], vmax, kp, safe_rad)
         # self._state[3] = self._vmax
         self._goal = self.get_goal(np.array(goal))
-        diff = self._goal - self._state[:2]
-        self._state[2] = np.arctan2(diff[1],diff[0])
         self._agent_type = "pursuer"
 
     def get_goal(self, evader_state):
         dist = np.linalg.norm(evader_state[:2] - self._state[:2])
-        # lead = min(dist, dist * (1.0 - np.exp(-dist/30)))
-        lead = dist * 0.5
-        # lead = min(dist, 5*dist/d_vel)
+        lead = dist * 0.4
         gx = evader_state[0] + lead*np.cos(evader_state[2])
         gy = evader_state[1] + lead*np.sin(evader_state[2])
         return np.array([gx, gy])
+
+    def set_opt_theta(self):
+        diff = self._goal - self._state[:2]
+        self._state[2] = np.arctan2(diff[1],diff[0])
+
         
     def act(self, dt, evader):
 

@@ -30,8 +30,7 @@ class aacas_agent(base_agent):
         self.updateDetections(pursuers)
         self.pos = self._state[:2]
 
-        command = self.getAction()
-        self.kinematics(command, dt)
+        super().act(dt, args)
         self.time += dt
 
     def getAction(self):
@@ -199,8 +198,8 @@ class aacas_agent(base_agent):
 
     def getSafeDistance(self, obstacle):
         vel_sum = self._state[3] + np.linalg.norm(obstacle.velocity)
-        # self.safe_dist = max(self.min_safe_dist, vel_sum)
-        # self.k_conv = 0.0001 + 2*np.exp(-obstacle.distance)
+        self.safe_dist = max(self.min_safe_dist, vel_sum*(1 + 1/self.max_command[0]**2))
+        self.k_conv = 0.01 + 2*np.exp(-obstacle.distance)
         # self.safe_dist = self.min_safe_dist
 
 
